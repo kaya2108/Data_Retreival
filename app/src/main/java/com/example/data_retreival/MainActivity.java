@@ -9,6 +9,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -28,7 +29,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Api api;
     private RecyclerView recyclerView;
     private TextView display1;
-    private Button summary1;
+    private Button summary1,delete;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,6 +41,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         display1=findViewById(R.id.error);
         summary1=findViewById(R.id.summary1);
         summary1.setOnClickListener(this);
+        delete=findViewById(R.id.delete);
+        delete.setOnClickListener(this);
 
     }
 
@@ -51,8 +54,35 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.summary1:
                 retrieveSummary();
+            case R.id.delete:
+                deleteData();
         }
 
+    }
+
+    private void deleteData() {
+        Gson gson = new GsonBuilder()
+                .setLenient()
+                .create();
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("https://script.google.com/macros/s/AKfycby3i9g_jJrbYTnteKqLO_TPo9PmFqOExt03uuc5cvfR-_lUMCrBL4jY4s4yftjdOezp/")
+                .addConverterFactory(GsonConverterFactory.create(gson))
+                .build();
+        api = retrofit.create(Api.class);
+        Call<Delete> call=api.deletePost("delete","MTNlMzRlMWQtMWRjOS00ODViLWI3YjktODRjNWRkZmVhODgy");
+        call.enqueue(new Callback<Delete>() {
+            @Override
+            public void onResponse(Call<Delete> call, Response<Delete> response) {
+                Delete posts=response.body();
+                String uniqueID= posts.getUniqueID();
+                Toast.makeText(MainActivity.this,uniqueID+" Deleted",Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onFailure(Call<Delete> call, Throwable t) {
+                Toast.makeText(MainActivity.this,t.getMessage(),Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void retrieveSummary() {
