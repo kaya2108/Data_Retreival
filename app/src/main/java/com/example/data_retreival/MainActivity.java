@@ -28,6 +28,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Api api;
     private RecyclerView recyclerView;
     private TextView display1;
+    private Button summary1;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,13 +38,55 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btn.setOnClickListener(this);
         recyclerView=findViewById(R.id.recycler);
         display1=findViewById(R.id.error);
-
+        summary1=findViewById(R.id.summary1);
+        summary1.setOnClickListener(this);
 
     }
 
     @Override
     public void onClick(View v) {
-        retrievePosts(regno.getText().toString());
+        switch (v.getId()){
+            case R.id.retrieve:
+                retrievePosts(regno.getText().toString());
+                break;
+            case R.id.summary1:
+                retrieveSummary();
+        }
+
+    }
+
+    private void retrieveSummary() {
+        Gson gson = new GsonBuilder()
+                .setLenient()
+                .create();
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("https://script.google.com/macros/s/AKfycbxXrwratYektLHculapSofI9BC7yWCUr1OejUOxaVecT7gDVZRnXoIjQviD8-Dj-FWS/")
+                .addConverterFactory(GsonConverterFactory.create(gson))
+                .build();
+        api = retrofit.create(Api.class);
+        Call<summary> call=api.getSummary("get");
+        call.enqueue(new Callback<summary>() {
+            @Override
+            public void onResponse(Call<summary> call, Response<summary> response) {
+                summary posts = response.body();
+                String content="";
+                content+="XS: "+posts.getXs()+"\n";
+                content+="S: "+posts.getS()+"\n";
+                content+="M: "+posts.getM()+"\n";
+                content+="L: "+posts.getL()+"\n";
+                content+="XL: "+posts.getXl()+"\n";
+                content+="XXL: "+posts.getXxl()+"\n";
+                content+="XXXL: "+posts.getXxxl()+"\n";
+                display1.append(content);
+
+
+            }
+
+            @Override
+            public void onFailure(Call<summary> call, Throwable t) {
+
+            }
+        });
     }
 
     private void retrievePosts(String regno) {

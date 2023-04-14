@@ -13,4 +13,8 @@ public interface Api {
         @Query("action") String fxn,
         @Query("regno") String regno
     );
+    @GET("exec")
+    Call<summary> getSummary(
+            @Query("action") String fxn
+    );
 }
