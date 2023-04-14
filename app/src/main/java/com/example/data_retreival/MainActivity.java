@@ -64,7 +64,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .build();
         api = retrofit.create(Api.class);
-        Call<summary> call=api.getSummary("get");
+        Call<summary> call=api.getSummary("getCount");
         call.enqueue(new Callback<summary>() {
             @Override
             public void onResponse(Call<summary> call, Response<summary> response) {
